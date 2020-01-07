@@ -14,9 +14,10 @@ import de.sowrong.pokemonquartet.data.Pokemon;
 import de.sowrong.pokemonquartet.data.Stat;
 import de.sowrong.pokemonquartet.data.Stats;
 import de.sowrong.pokemonquartet.game.Game;
+import de.sowrong.pokemonquartet.game.ScoreResult;
 
 public class RunningGameActivity extends AppCompatActivity {
-    private View viewChooseCompareStat, viewComparePokemon, viewShowPokemonInfo;
+    private View viewChooseCompareStat, viewComparePokemon, viewShowPokemonInfo, viewGameEnd;
     private Game game;
 
     @Override
@@ -25,6 +26,7 @@ public class RunningGameActivity extends AppCompatActivity {
         viewChooseCompareStat = getLayoutInflater().inflate(R.layout.layout_choose_compare_stat, null);
         viewComparePokemon = getLayoutInflater().inflate(R.layout.layout_compare_pokemon, null);
         viewShowPokemonInfo = getLayoutInflater().inflate(R.layout.layout_show_pokemon_info, null);
+        viewGameEnd = getLayoutInflater().inflate(R.layout.layout_game_end, null);
 
         setContentView(viewChooseCompareStat);
 
@@ -38,21 +40,30 @@ public class RunningGameActivity extends AppCompatActivity {
         updateRoomNumber();
     }
 
+    @Override
+    protected void onDestroy () {
+        super.onDestroy();
+        game.endGame();
+    }
+
     public void showComparePokemon(Pokemon pokemonPlayer, Pokemon pokemonOpponent, Stat compareStat) {
         setContentView(viewComparePokemon);
 
         game.updateActivePlayerAndPoints();
 
-        if(game.winnerOfRound()) {
+        if(game.winnerOfRound() == ScoreResult.WINNER) {
             updatePointsAndRound("You Win!");
         }
-        else {
+        else if (game.winnerOfRound() == ScoreResult.LOSER){
             updatePointsAndRound("You Lose!");
+        }
+        else {
+            updatePointsAndRound("It's a tie!");
         }
 
         TextView textViewPokemonName1 = findViewById(R.id.textViewPokemonName1);
         TextView textViewPokemonInfoCaption1 = findViewById(R.id.textViewPokemonInfoCaption1);
-        ImageView imageViewPokemon1 = findViewById(R.id.imageViewPokemon1);
+        ImageView imageViewPokemon1 = findViewById(R.id.imageViewPokemon);
 
         String imageUri1 = "android.resource://de.sowrong.pokemonquartet/drawable/" + pokemonOpponent.getFilename();
         imageViewPokemon1.setImageURI(Uri.parse(imageUri1));
@@ -69,7 +80,10 @@ public class RunningGameActivity extends AppCompatActivity {
         textViewPokemonName2.setText(String.format("#%s  %s", pokemonPlayer.getID(), pokemonPlayer.getName()));
         textViewPokemonInfoCaption2.setText(Pokemon.getStringByStat(compareStat) + ": " + pokemonPlayer.getStatValue(compareStat));
 
-
+        if(game.isLastRound()) {
+            Button nextButton = findViewById(R.id.buttonChangePokemon);
+            nextButton.setText("Final Score");
+        }
     }
 
     private void displayPokemonByTurn() {
@@ -138,6 +152,12 @@ public class RunningGameActivity extends AppCompatActivity {
     }
 
     public void nextRound(View view) {
+        if (game.isLastRound()) {
+            setContentView(viewGameEnd);
+            updateViewEndGame();
+            return;
+        }
+
         game.confirmStartRound();
 
         if (game.myTurn()) {
@@ -147,6 +167,46 @@ public class RunningGameActivity extends AppCompatActivity {
         else {
             setContentView(viewShowPokemonInfo);
             updateViewShowPokemonInfo(game.getOwnPokemonCurrentTurn());
+        }
+    }
+
+    private void updateViewEndGame() {
+        TextView textViewOwnPoints = findViewById(R.id.textViewYourPoints);
+        TextView textViewOpponentPoints = findViewById(R.id.textViewOpponentsPoints);
+
+        TextView textViewCongratulations = findViewById(R.id.textViewCongratulations);
+        TextView textViewOwnWinLose = findViewById(R.id.textViewWinLose);
+
+        ImageView imageViewWinLosePokemon = findViewById(R.id.imageViewPokemon);
+
+        textViewOwnPoints.setText(game.getOwnPoints() + " Points");
+        textViewOpponentPoints.setText(game.getOpponentPoints() + " Points");
+        String imageUri;
+
+        switch(game.gameResult()) {
+            case WINNER:
+                textViewCongratulations.setText("Congratulations!");
+                textViewOwnWinLose.setText("You Won");
+
+                imageUri = "android.resource://de.sowrong.pokemonquartet/drawable/game_won";
+                imageViewWinLosePokemon.setImageURI(Uri.parse(imageUri));
+                break;
+
+            case LOSER:
+                textViewCongratulations.setText("Oh No!");
+                textViewOwnWinLose.setText("You Lost");
+
+                imageUri = "android.resource://de.sowrong.pokemonquartet/drawable/game_lost";
+                imageViewWinLosePokemon.setImageURI(Uri.parse(imageUri));
+                break;
+
+            default:
+                textViewCongratulations.setText("It's a Tie!");
+                textViewOwnWinLose.setText("You Both Won");
+
+                imageUri = "android.resource://de.sowrong.pokemonquartet/drawable/game_tied";
+                imageViewWinLosePokemon.setImageURI(Uri.parse(imageUri));
+                break;
         }
     }
 

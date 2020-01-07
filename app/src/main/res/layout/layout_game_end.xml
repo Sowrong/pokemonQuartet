@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackgroundGame">
+
+
+    <ImageView
+        android:id="@+id/imageTitle"
+        android:layout_height="80dp"
+        android:layout_width="match_parent"
+        android:background="#ffffff"
+        android:padding="10dp"
+        android:src="@drawable/game_banner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/textViewCongratulations"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/pokemon_classic"
+        android:gravity="center"
+        android:layout_margin="20dp"
+        android:text="Congratulations!"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@+id/imageTitle" />
+
+    <TextView
+        android:id="@+id/textViewWinLose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/pokemon_classic"
+        android:gravity="center"
+        android:layout_margin="10dp"
+        android:text="You Won"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCongratulations" />
+
+
+    <ImageView
+        android:id="@+id/imageViewPokemon"
+        android:layout_width="wrap_content"
+        android:layout_height="300dp"
+        android:layout_marginStart="24dp"
+        android:layout_margin="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/cardViewYourPoints"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/game_won" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewOpponentsPoints"
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        app:cardBackgroundColor="@color/colorOpponent"
+        app:cardCornerRadius="25dp"
+        app:cardElevation="5dp"
+        android:layout_margin="20dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="3dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pokemon_classic"
+                android:gravity="center"
+                android:text="Opp."
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewOpponentsPoints"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pokemon_classic"
+                android:gravity="center"
+                android:text="46 Points"
+                android:textSize="20dp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewYourPoints"
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        app:cardBackgroundColor="@color/colorYou"
+        app:cardCornerRadius="25dp"
+        app:cardElevation="5dp"
+        android:layout_margin="20dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/cardViewOpponentsPoints"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="3dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pokemon_classic"
+                android:gravity="center"
+                android:text="You"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewYourPoints"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pokemon_classic"
+                android:gravity="center"
+                android:text="52 Points"
+                android:textSize="20dp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

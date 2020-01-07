@@ -37,7 +37,7 @@ public class Game implements Serializable {
 
     private static Game game;
 
-    public static final int MIN_CARDS = 10;
+    public static final int MIN_CARDS = 3;
     public static final int MAX_CARDS = 30;
 
     public Game() {
@@ -61,6 +61,10 @@ public class Game implements Serializable {
         }
 
         return game;
+    }
+
+    public boolean isLastRound() {
+        return currentRound == numberRounds;
     }
 
     public boolean isHost() {
@@ -92,6 +96,10 @@ public class Game implements Serializable {
         if(currentRound < 1 || currentRound > MAX_CARDS) {
             Log.e("Game", "Turn out of bound: " + currentRound);
             return getOwnPokemon()[0];
+        }
+
+        if (currentRound > numberRounds) {
+            return null;
         }
 
         return getOwnPokemon()[currentRound-1];
@@ -221,28 +229,48 @@ public class Game implements Serializable {
     }
 
     public void updateActivePlayerAndPoints() {
-        if (winnerOfRound()) {
-            ownPoints++;
-            activePlayer = true;
+        switch(winnerOfRound()) {
+            case WINNER:
+                ownPoints+=2;
+                activePlayer = true;
+                break;
+            case LOSER:
+                opponentPoints+=2;
+                activePlayer = false;
+                break;
+            default:
+                //activePlayer = activePlayer; - do not change
+                ownPoints++;
+                opponentPoints++;
         }
-        else {
-            opponentPoints++;
-            activePlayer = false;
-        }
-        // activePlayer = (gameState.getTurnOrder() == connectionType);
     }
 
-    public boolean winnerOfRound() {
+    public ScoreResult winnerOfRound() {
         Stats ownPokemonStats = getOwnPokemonCurrentTurn().getStats();
         Stats opponentPokemonStats = getOpponentPokemonCurrentTurn().getStats();
 
         Stat choseStat = gameState.getChosenStat();
 
-        if (ownPokemonStats.getValueByStat(choseStat) >= opponentPokemonStats.getValueByStat(choseStat)) {
-            return true;
+        if (ownPokemonStats.getValueByStat(choseStat) > opponentPokemonStats.getValueByStat(choseStat)) {
+            return ScoreResult.WINNER;
+        }
+        else if (ownPokemonStats.getValueByStat(choseStat) < opponentPokemonStats.getValueByStat(choseStat)) {
+            return ScoreResult.LOSER;
         }
         else {
-            return false;
+            return ScoreResult.TIE;
+        }
+    }
+
+    public ScoreResult gameResult() {
+        if (ownPoints > opponentPoints) {
+            return ScoreResult.WINNER;
+        }
+        else if (ownPoints < opponentPoints) {
+            return ScoreResult.LOSER;
+        }
+        else {
+            return ScoreResult.TIE;
         }
     }
 

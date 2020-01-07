@@ -60,7 +60,7 @@
         android:text="Help"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/buttonSettings"
-        android:onClick="displayRandomPokemon"
+        android:onClick="startHelp"
         />
 
     <Button
@@ -74,7 +74,7 @@
         android:text="Settings"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/buttonQuit"
-        android:onClick="startCompare"
+        android:onClick="startSettings"
         />
 
     <Button
@@ -87,5 +87,6 @@
         android:fontFamily="@font/pokemon_classic"
         android:text="Quit"
         android:textStyle="bold"
+        android:onClick="quitGame"
         app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

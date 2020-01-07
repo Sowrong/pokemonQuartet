@@ -177,7 +177,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
-                android:id="@+id/imageViewPokemon1"
+                android:id="@+id/imageViewPokemon"
                 android:layout_width="wrap_content"
                 android:layout_height="140dp"
                 android:layout_marginVertical="5dp"
