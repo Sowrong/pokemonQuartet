@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackgroundGame">
+
+
+    <ImageView
+        android:id="@+id/imageTitle"
+        android:layout_height="80dp"
+        android:layout_width="match_parent"
+        android:background="#ffffff"
+        android:padding="10dp"
+        android:src="@drawable/game_banner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="417dp"
+        android:layout_height="241dp"
+        android:layout_marginVertical="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageTitle">
+
+        <CheckBox
+            android:id="@+id/checkboxHostGuest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:fontFamily="@font/pokemon_classic"
+            android:onClick="activateDeactivateInput"
+            android:text="Host / Guest"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/textViewRoomIdInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="70dp"
+            android:fontFamily="@font/pokemon_classic"
+            android:gravity="center"
+            android:hint="Room Number"
+            android:textStyle="bold"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/layoutNumberCards"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/layoutNumberCards" />
+
+        <LinearLayout
+            android:id="@+id/layoutNumberCards"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="20dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/buttonNewGame"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/checkboxHostGuest">
+
+            <TextView
+                android:id="@+id/textViewNumberCards"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:fontFamily="@font/pokemon_classic"
+                android:gravity="center"
+                android:layout_marginVertical="10dp"
+                android:layout_gravity="center"
+                android:text="20 Cards"
+                app:layout_constraintEnd_toStartOf="@+id/seekBarNumberCards" />
+
+            <SeekBar
+                android:id="@+id/seekBarNumberCards"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_marginVertical="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/buttonNewGame" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonNewGame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="10dp"
+            android:background="@drawable/btn_rounded_corner"
+            android:fontFamily="@font/pokemon_classic"
+            android:onClick="newGame"
+            android:text="New Game"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/layoutNumberCards" />
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

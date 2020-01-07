@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "911431695634",
+    "firebase_url": "https://pokemon-quartet.firebaseio.com",
+    "project_id": "pokemon-quartet",
+    "storage_bucket": "pokemon-quartet.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:911431695634:android:3d53d4f76cb7ab0de1c7cb",
+        "android_client_info": {
+          "package_name": "de.sowrong.pokemonquartet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "911431695634-0tk0uc53smurq6spggdcb5qjc4td435i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.sowrong.pokemonquartet",
+            "certificate_hash": "de9755281f748a4fb97b803b9fee9988ec29146f"
+          }
+        },
+        {
+          "client_id": "911431695634-3dnmi3k1ot272k8n3bicl345ff0uug2b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7rh7OpUmLrPF1fw0_HyPwc5FOad6nqH8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "911431695634-3dnmi3k1ot272k8n3bicl345ff0uug2b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
