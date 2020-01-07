@@ -11,15 +11,15 @@ public class GameState implements Serializable {
     private boolean newStatChosen;
     private boolean guestConnected;
     private Stat chosenStat;
-    private ConnectionType turnOrder;
+    private ConnectionType startPlayer;
 
     public static final String TurnNumberString =  "TurnNumber";
-    public static final String RoomNumberString = "RoomNumber";
+    public static final String GameRandomSeedString = "GameRandomSeed";
     public static final String NewStatChosenString = "NewStatChosen";
     public static final String GuestConnectedString = "GuestConnected";
     public static final String NumberCardsString = "NumberCards";
     public static final String ChosenStatString = "ChosenStat";
-    public static final String TurnOrderString = "TurnOrder";
+    public static final String StartPlayerString = "StartPlayer";
 
 
     public GameState() {
@@ -31,10 +31,10 @@ public class GameState implements Serializable {
         Random startPlayerPicker = new Random();
 
         if (startPlayerPicker.nextBoolean()){
-            turnOrder = ConnectionType.HOST;
+            startPlayer = ConnectionType.HOST;
         }
         else {
-            turnOrder = ConnectionType.GUEST;
+            startPlayer = ConnectionType.GUEST;
         }
     }
 
@@ -50,7 +50,7 @@ public class GameState implements Serializable {
         return roomNumber;
     }
 
-    public void setRoomNumber(int roomNumber) {
+    public void setRandomSeed(int roomNumber) {
         this.roomNumber = roomNumber;
     }
 
@@ -78,11 +78,11 @@ public class GameState implements Serializable {
         this.chosenStat = chosenStat;
     }
 
-    public ConnectionType getTurnOrder() {
-        return turnOrder;
+    public ConnectionType getStartPlayer() {
+        return startPlayer;
     }
 
-    public void setTurnOrder(ConnectionType turnOrder) {
-        this.turnOrder = turnOrder;
+    public void setStartPlayer(ConnectionType startPlayer) {
+        this.startPlayer = startPlayer;
     }
 }

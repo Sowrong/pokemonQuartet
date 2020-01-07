@@ -33,11 +33,18 @@ public class Game implements Serializable {
     private int opponentPoints;
     private RunningGameActivity activity;
     private boolean opponentConnected;
+    private boolean waitingForCallbackFinished;
+
+    private static Game game;
 
     public static final int MIN_CARDS = 10;
     public static final int MAX_CARDS = 30;
 
-    public Game(Context context) {
+    public Game() {
+        waitingForCallbackFinished = false;
+    }
+
+    public void initGame(Context context) {
         opponentConnected = false;
         numberRounds = MIN_CARDS;
         currentRound = 1;
@@ -48,19 +55,37 @@ public class Game implements Serializable {
         pokemon = new ArrayList<>(Arrays.asList(Importer.getPokemon(context.getAssets())));
     }
 
+    public static Game getGame() {
+        if (game == null) {
+            game = new Game();
+        }
+
+        return game;
+    }
+
     public boolean isHost() {
         return connectionType == ConnectionType.HOST;
     }
 
     public void initRunningGame(RunningGameActivity activity) {
         this.activity = activity;
-        activePlayer = connectionType == gameState.getTurnOrder();
+        activePlayer = connectionType == gameState.getStartPlayer();
+    }
+
+    public void gameStarted() {
+       waitingForCallbackFinished = false;
+    }
+
+    public boolean isWaitingForCallback() {
+        return waitingForCallbackFinished;
     }
 
     public void startGame(final Context context, final Intent intent, final Toast toast, final int numberCards) {
         connectionType = ConnectionType.HOST;
         this.numberRounds = numberCards;
-        databaseConnector.createDatabase(context, intent, toast, numberCards);
+        this.waitingForCallbackFinished = true;
+
+        databaseConnector.createDatabase(this, context, intent, toast, numberCards);
     }
 
     public Pokemon getOwnPokemonCurrentTurn() {
@@ -86,6 +111,7 @@ public class Game implements Serializable {
         this.numberRounds = numberCards;
         databaseConnector.setDatabaseByRoomId(roomId);
         databaseConnector.setValue(GameState.GuestConnectedString, true);
+        gameStarted();
     }
 
     public void endGame() {
@@ -131,11 +157,13 @@ public class Game implements Serializable {
             databaseConnector.setValue(GameState.TurnNumberString, gameState.getTurnNumber() + 1);
         }
 
-        increaseRountCounter();
+
+        currentRound++;
     }
 
     public void checkRoomExists(int roomId, Context context, Intent intent, Toast toast) {
-        databaseConnector.pathExists(roomId, context, intent, toast, this);
+        this.waitingForCallbackFinished = true;
+        databaseConnector.pathExists(this, roomId, context, intent, toast);
     }
 
     public GameState getGameState() {
@@ -144,7 +172,7 @@ public class Game implements Serializable {
 
     public void initPokemonByRoomId() {
         ArrayList<Pokemon> shuffledList = (ArrayList<Pokemon>) pokemon.clone();
-        Collections.shuffle(shuffledList, new Random(databaseConnector.getRoomId()));
+        Collections.shuffle(shuffledList, new Random(databaseConnector.getRandomSeed()));
 
         if (numberRounds > pokemon.size()/2 || numberRounds < 0) {
             Log.e("Game", "Number of selected cards exceeds limit of available cards: " + numberRounds);
@@ -172,7 +200,6 @@ public class Game implements Serializable {
             return guestPokemon;
     }
 
-    public void increaseRountCounter() { currentRound++; }
     public int getRemainingRounds() { return numberRounds - numberRounds; }
     public int getCurrentRound() { return currentRound; }
     public int getNumberRounds() { return numberRounds; }

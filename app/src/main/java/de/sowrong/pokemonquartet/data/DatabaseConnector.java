@@ -26,7 +26,7 @@ public class DatabaseConnector implements Serializable {
     final static int MAX_ROOM_ID = 100000;
     final static int MAX_ROOM_CREATE_TRIES = 10;
 
-    private int roomId;
+    private int randomSeed;
     private static DatabaseReference databaseReference;
     private static ValueEventListener eventListener;
     private static Game game;
@@ -62,16 +62,16 @@ public class DatabaseConnector implements Serializable {
                                     game.playerHasJoinedGame();
                                 }
                                 break;
-                            case GameState.TurnOrderString:
-                                String turOrderString = (String) value;
-                                if (turOrderString.equals(ConnectionType.HOST.toString())) {
-                                    gameState.setTurnOrder(ConnectionType.HOST);
+                            case GameState.StartPlayerString:
+                                String startPlayerString = (String) value;
+                                if (startPlayerString.equals(ConnectionType.HOST.toString())) {
+                                    gameState.setStartPlayer(ConnectionType.HOST);
                                 }
-                                else if (turOrderString.equals(ConnectionType.GUEST.toString())) {
-                                    gameState.setTurnOrder(ConnectionType.GUEST);
+                                else if (startPlayerString.equals(ConnectionType.GUEST.toString())) {
+                                    gameState.setStartPlayer(ConnectionType.GUEST);
                                 }
                                 else {
-                                    gameState.setTurnOrder(ConnectionType.OBSERVER);
+                                    gameState.setStartPlayer(ConnectionType.OBSERVER);
                                 }
                                 break;
                             case GameState.ChosenStatString:
@@ -110,13 +110,13 @@ public class DatabaseConnector implements Serializable {
 
 
     public void setDatabaseByRoomId(final int id) {
-        roomId = id;
+        randomSeed = id;
 
-        databaseReference = FirebaseDatabase.getInstance().getReference().child(String.valueOf(roomId));
+        databaseReference = FirebaseDatabase.getInstance().getReference().child(String.valueOf(randomSeed));
         databaseReference.addValueEventListener(eventListener);
     }
 
-    public void pathExists(final int roomId, final Context context, final Intent intent, final Toast toast, final Game game) {
+    public void pathExists(final Game game, final int roomId, final Context context, final Intent intent, final Toast toast) {
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference().child(String.valueOf(roomId));
 
         rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -136,8 +136,8 @@ public class DatabaseConnector implements Serializable {
                             case GameState.TurnNumberString:
                                 gameState.setTurnNumber(((Long)value).intValue());
                                 break;
-                            case GameState.RoomNumberString:
-                                gameState.setRoomNumber(((Long)value).intValue());
+                            case GameState.GameRandomSeedString:
+                                gameState.setRandomSeed(((Long)value).intValue());
                                 break;
                             case GameState.NewStatChosenString:
                                 gameState.setNewStatChosen((Boolean) value);
@@ -145,16 +145,16 @@ public class DatabaseConnector implements Serializable {
                             case GameState.GuestConnectedString:
                                 gameState.setGuestConnected((Boolean) value);
                                 break;
-                            case GameState.TurnOrderString:
-                                String turOrderString = (String) value;
-                                if (turOrderString.equals(ConnectionType.HOST.toString())) {
-                                    gameState.setTurnOrder(ConnectionType.HOST);
+                            case GameState.StartPlayerString:
+                                String startPlayer = (String) value;
+                                if (startPlayer.equals(ConnectionType.HOST.toString())) {
+                                    gameState.setStartPlayer(ConnectionType.HOST);
                                 }
-                                else if (turOrderString.equals(ConnectionType.GUEST.toString())) {
-                                    gameState.setTurnOrder(ConnectionType.GUEST);
+                                else if (startPlayer.equals(ConnectionType.GUEST.toString())) {
+                                    gameState.setStartPlayer(ConnectionType.GUEST);
                                 }
                                 else {
-                                    gameState.setTurnOrder(ConnectionType.OBSERVER);
+                                    gameState.setStartPlayer(ConnectionType.OBSERVER);
                                 }
                                 break;
                             case GameState.ChosenStatString:
@@ -179,37 +179,37 @@ public class DatabaseConnector implements Serializable {
         });
     }
 
-    private void createDatabase(final Context context, final Intent intent, final Toast toast, final int numberCards, final int tries) {
+    private void createDatabase(final Game game, final Context context, final Intent intent, final Toast toast, final int numberCards, final int tries) {
         if (tries > MAX_ROOM_CREATE_TRIES) {
             toast.show();
             return;
         }
 
-        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference().child(String.valueOf(roomId));
-        roomId = generator.nextInt(MAX_ROOM_ID-MIN_ROOM_ID)+MIN_ROOM_ID;
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference().child(String.valueOf(randomSeed));
+        randomSeed = generator.nextInt(MAX_ROOM_ID-MIN_ROOM_ID)+MIN_ROOM_ID;
 
         rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() == null) {
                     GameState gameState = game.getGameState();
-                    gameState.setRoomNumber(roomId);
+                    gameState.setRandomSeed(randomSeed);
 
-                    databaseReference = FirebaseDatabase.getInstance().getReference().child(String.valueOf(roomId));
+                    databaseReference = FirebaseDatabase.getInstance().getReference().child(String.valueOf(randomSeed));
                     setValue(GameState.TurnNumberString, 1);
-                    setValue(GameState.RoomNumberString, roomId);
+                    setValue(GameState.GameRandomSeedString, randomSeed);
                     setValue(GameState.NewStatChosenString, false);
                     setValue(GameState.GuestConnectedString, false);
                     setValue(GameState.NumberCardsString, numberCards);
-                    setValue(GameState.TurnOrderString, gameState.getTurnOrder().toString());
+                    setValue(GameState.StartPlayerString, gameState.getStartPlayer().toString());
 
                     databaseReference.addValueEventListener(eventListener);
 
                     context.startActivity(intent);
-                    Log.d(DB_CONNECTOR_TAG, "created room "+roomId);
+                    game.gameStarted();
                 }
                 else {
-                    createDatabase(context, intent, toast, numberCards, tries+1);
+                    createDatabase(game, context, intent, toast, numberCards, tries+1);
                 }
             }
 
@@ -221,8 +221,8 @@ public class DatabaseConnector implements Serializable {
     }
 
 
-    public void createDatabase(final Context context, final Intent intent, final Toast toast, final int numberCards) {
-        createDatabase(context, intent, toast, numberCards, 0);
+    public void createDatabase(final Game game, final Context context, final Intent intent, final Toast toast, final int numberCards) {
+        createDatabase(game, context, intent, toast, numberCards, 0);
     }
 
     public void deleteDatabase() {
@@ -230,8 +230,8 @@ public class DatabaseConnector implements Serializable {
         databaseReference.setValue(null);
     }
 
-    public int getRoomId() {
-        return roomId;
+    public int getRandomSeed() {
+        return randomSeed;
     }
 
     public static Game getGame() {

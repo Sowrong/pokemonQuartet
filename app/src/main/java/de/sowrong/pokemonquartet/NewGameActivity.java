@@ -82,10 +82,15 @@ public class NewGameActivity extends AppCompatActivity {
     public void newGame(View view) {
         // see if host was selected, otherwise self is guest
 
-        game = new Game(this);
+        game = Game.getGame();
+        game.initGame(this);
+
+
+        if (game.isWaitingForCallback()) {
+            return;
+        }
 
         Intent intent = new Intent(this, RunningGameActivity.class);
-        intent.putExtra("Game", game);
 
         CheckBox checkboxHostGuest = findViewById(R.id.checkboxHostGuest);
 
@@ -111,6 +116,11 @@ public class NewGameActivity extends AppCompatActivity {
             // read the room number if guest
             TextView textViewRoomIdInput = findViewById(R.id.textViewRoomIdInput);
             String roomNumberString = textViewRoomIdInput.getText().toString();
+
+            if (roomNumberString.equals("")) {
+                return;
+            }
+
             int roomId = Integer.valueOf(roomNumberString);
 
             // check if room number exists
