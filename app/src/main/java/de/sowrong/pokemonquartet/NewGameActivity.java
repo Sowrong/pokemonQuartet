@@ -148,4 +148,8 @@ public class NewGameActivity extends AppCompatActivity {
             newGameButton.setText("Join Game");
         }
     }
+
+    public void back(View view) {
+        finish();
+    }
 }

@@ -289,4 +289,8 @@ public class RunningGameActivity extends AppCompatActivity {
     public void showResultsForInactivePlayer(View view) {
         showComparePokemon(game.getOwnPokemonCurrentTurn(), game.getOpponentPokemonCurrentTurn(), game.getGameState().getChosenStat());
     }
+
+    public void back(View view) {
+        finish();
+    }
 }

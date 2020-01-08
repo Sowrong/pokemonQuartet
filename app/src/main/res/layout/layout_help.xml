@@ -31,4 +31,19 @@
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@+id/imageTitle" />
 
+    <Button
+        android:id="@+id/button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="@drawable/btn_white"
+        android:fontFamily="@font/pokemon_classic"
+        android:gravity="center"
+        android:onClick="back"
+        android:textSize="20dp"
+        android:text="←"
+        app:layout_constraintBottom_toBottomOf="@+id/imageTitle"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="5dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

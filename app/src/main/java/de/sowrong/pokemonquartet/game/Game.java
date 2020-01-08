@@ -37,7 +37,7 @@ public class Game implements Serializable {
 
     private static Game game;
 
-    public static final int MIN_CARDS = 3;
+    public static final int MIN_CARDS = 2;
     public static final int MAX_CARDS = 30;
 
     public Game() {

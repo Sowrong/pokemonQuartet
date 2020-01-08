@@ -9,4 +9,5 @@
     <color name="ic_launcher_background">#008577</color>
     <color name="colorOpponent">#FC4F4F</color>
     <color name="colorYou">#438EFF</color>
+    <color name="white">#FFFFFF</color>
 </resources>
