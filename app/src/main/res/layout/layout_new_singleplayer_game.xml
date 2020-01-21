@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackgroundGame">
+
+
+    <ImageView
+        android:id="@+id/imageTitle"
+        android:layout_height="80dp"
+        android:layout_width="match_parent"
+        android:background="#ffffff"
+        android:padding="10dp"
+        android:src="@drawable/game_banner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/buttonBack"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="@drawable/btn_white"
+        android:fontFamily="@font/pokemon_classic"
+        android:gravity="center"
+        android:onClick="back"
+        android:textSize="20dp"
+        android:text="←"
+        app:layout_constraintBottom_toBottomOf="@+id/imageTitle"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="5dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="303dp"
+        android:layout_marginVertical="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageTitle">
+
+
+        <LinearLayout
+            android:id="@+id/layoutNumberCards"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="20dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="visible"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/textViewNumberCards"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="5dp"
+                android:layout_marginVertical="10dp"
+                android:fontFamily="@font/pokemon_classic"
+                android:gravity="center"
+                android:text="20 Cards"
+                app:layout_constraintEnd_toStartOf="@+id/seekBarNumberCards" />
+
+            <SeekBar
+                android:id="@+id/seekBarNumberCards"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_marginVertical="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/buttonNewGame" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewAiDifficulty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="5dp"
+            android:layout_marginVertical="10dp"
+            android:fontFamily="@font/pokemon_classic"
+            android:gravity="center"
+            android:text="Difficulty"
+            app:layout_constraintTop_toBottomOf="@+id/layoutNumberCards" />
+
+        <Spinner
+            android:id="@+id/spinnerAiDifficulty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="10dp"
+            android:fontFamily="@font/pokemon_classic"
+            android:gravity="center"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/textViewAiDifficulty" />
+
+        <Button
+            android:id="@+id/buttonNewGame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="10dp"
+            android:background="@drawable/btn_rounded_corner"
+            android:fontFamily="@font/pokemon_classic"
+            android:onClick="newGame"
+            android:text="New Game"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/spinnerAiDifficulty" />
+
+
+        <Button
+            android:id="@+id/buttonContinueGame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="10dp"
+            android:background="@drawable/btn_rounded_corner"
+            android:fontFamily="@font/pokemon_classic"
+            android:onClick="continueGame"
+            android:text="Continue"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/buttonNewGame" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

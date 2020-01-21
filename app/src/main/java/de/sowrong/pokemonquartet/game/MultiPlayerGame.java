@@ -11,56 +11,51 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
-import de.sowrong.pokemonquartet.RunningGameActivity;
+import de.sowrong.pokemonquartet.RunningMultiPlayerGameActivity;
 import de.sowrong.pokemonquartet.data.DatabaseConnector;
 import de.sowrong.pokemonquartet.data.GameState;
 import de.sowrong.pokemonquartet.data.Importer;
+import de.sowrong.pokemonquartet.data.Player;
 import de.sowrong.pokemonquartet.data.Pokemon;
 import de.sowrong.pokemonquartet.data.Stat;
 import de.sowrong.pokemonquartet.data.Stats;
 
-public class Game implements Serializable {
+public class MultiPlayerGame implements Serializable {
     private ConnectionType connectionType;
     private DatabaseConnector databaseConnector;
     private ArrayList<Pokemon> pokemon;
-    private Pokemon[] hostPokemon;
-    private Pokemon[] guestPokemon;
+    private Player self;
+    private Player opponent;
     private int currentRound;
     private int numberRounds;
-    private GameState gameState;
-    private boolean activePlayer;
-    private int ownPoints;
-    private int opponentPoints;
-    private RunningGameActivity activity;
-    private boolean opponentConnected;
+    private boolean selfIsActivePlayer;
+    private RunningMultiPlayerGameActivity activity;
     private boolean waitingForCallbackFinished;
 
-    private static Game game;
+    private static MultiPlayerGame multiPlayerGame;
 
     public static final int MIN_CARDS = 2;
     public static final int MAX_CARDS = 30;
 
-    public Game() {
+    public MultiPlayerGame() {
         waitingForCallbackFinished = false;
+        self = new Player(true);
+        opponent = new Player(false);
     }
 
     public void initGame(Context context) {
-        opponentConnected = false;
         numberRounds = MIN_CARDS;
         currentRound = 1;
-        ownPoints = 0;
-        opponentPoints = 0;
-        gameState = new GameState();
         databaseConnector = new DatabaseConnector(context, this);
         pokemon = new ArrayList<>(Arrays.asList(Importer.getPokemon(context.getAssets())));
     }
 
-    public static Game getGame() {
-        if (game == null) {
-            game = new Game();
+    public static MultiPlayerGame getMultiPlayerGame() {
+        if (multiPlayerGame == null) {
+            multiPlayerGame = new MultiPlayerGame();
         }
 
-        return game;
+        return multiPlayerGame;
     }
 
     public boolean isLastRound() {
@@ -71,12 +66,12 @@ public class Game implements Serializable {
         return connectionType == ConnectionType.HOST;
     }
 
-    public void initRunningGame(RunningGameActivity activity) {
+    public void initRunningGame(RunningMultiPlayerGameActivity activity) {
         this.activity = activity;
-        activePlayer = connectionType == gameState.getStartPlayer();
+        //selfIsActivePlayer = connectionType == gameState.getStartPlayer();
     }
 
-    public void gameStarted() {
+    public void callbackFinished() {
        waitingForCallbackFinished = false;
     }
 
@@ -88,38 +83,37 @@ public class Game implements Serializable {
         connectionType = ConnectionType.HOST;
         this.numberRounds = numberCards;
         this.waitingForCallbackFinished = true;
+        selfIsActivePlayer = true; // HOST always starts
 
         databaseConnector.createDatabase(this, context, intent, toast, numberCards);
     }
 
     public Pokemon getOwnPokemonCurrentTurn() {
         if(currentRound < 1 || currentRound > MAX_CARDS) {
-            Log.e("Game", "Turn out of bound: " + currentRound);
-            return getOwnPokemon()[0];
-        }
-
-        if (currentRound > numberRounds) {
+            Log.e("MultiPlayerGame", "Turn out of bound: " + currentRound);
             return null;
         }
 
-        return getOwnPokemon()[currentRound-1];
+        return self.getPokemon(currentRound-1);
     }
 
     public Pokemon getOpponentPokemonCurrentTurn() {
         if(currentRound < 1 || currentRound > MAX_CARDS) {
-            Log.e("Game", "Turn out of bound: " + currentRound);
-            return getOwnPokemon()[0];
+            Log.e("MultiPlayerGame", "Turn out of bound: " + currentRound);
+            return null;
         }
 
-        return getOpponentsPokemon()[currentRound-1];
+        return opponent.getPokemon(currentRound-1);
     }
 
     public void joinGame(int roomId, int numberCards) {
         connectionType = ConnectionType.GUEST;
         this.numberRounds = numberCards;
         databaseConnector.setDatabaseByRoomId(roomId);
+        // TODO only join game if it is not running, yet
         databaseConnector.setValue(GameState.GuestConnectedString, true);
-        gameStarted();
+        selfIsActivePlayer = false; // HOST always starts
+        callbackFinished();
     }
 
     public void endGame() {
@@ -130,17 +124,15 @@ public class Game implements Serializable {
 
     // active player takes turn
     public boolean takeTurn(Stat stat, Context context) {
-        if (!gameState.isGuestConnected()) {
+        if (!opponent.isConnected()) {
             Toast toastNoOpponent = Toast.makeText(context, "No opponent connected!", Toast.LENGTH_SHORT);
             toastNoOpponent.show();
             return false;
         }
 
-        if (myTurn() && !gameState.isNewStatChosen()) {
+        if (myTurn() && !databaseConnector.isNewStatChosen()) {
             // set state
-            gameState.setChosenStat(stat);
-
-            databaseConnector.setValue(GameState.ChosenStatString, stat);
+            databaseConnector.setChosenStat(stat);
             // set has chosen
             databaseConnector.setValue(GameState.NewStatChosenString, true);
             return true;
@@ -152,30 +144,21 @@ public class Game implements Serializable {
         }
     }
 
-    public void evaluateRound() {
-
-    }
-
-
     // inactive player increases round counter
     public void confirmStartRound() {
-        if (gameState.isNewStatChosen() && !myTurn()) {
+        if (databaseConnector.getGameState().isNewStatChosen() && !myTurn()) {
             // increase turn number
             databaseConnector.setValue(GameState.NewStatChosenString, false);
-            databaseConnector.setValue(GameState.TurnNumberString, gameState.getTurnNumber() + 1);
+            databaseConnector.setValue(GameState.TurnNumberString, databaseConnector.getGameState().getTurnNumber() + 1);
         }
 
 
         currentRound++;
     }
 
-    public void checkRoomExists(int roomId, Context context, Intent intent, Toast toast) {
+    public void checkRoomExists(int roomId, Context context, Intent intent, Toast toastNotExist, Toast toastFull) {
         this.waitingForCallbackFinished = true;
-        databaseConnector.pathExists(this, roomId, context, intent, toast);
-    }
-
-    public GameState getGameState() {
-        return gameState;
+        databaseConnector.pathExists(this, roomId, context, intent, toastNotExist, toastFull);
     }
 
     public void initPokemonByRoomId() {
@@ -183,29 +166,18 @@ public class Game implements Serializable {
         Collections.shuffle(shuffledList, new Random(databaseConnector.getRandomSeed()));
 
         if (numberRounds > pokemon.size()/2 || numberRounds < 0) {
-            Log.e("Game", "Number of selected cards exceeds limit of available cards: " + numberRounds);
+            Log.e("MultiPlayerGame", "Number of selected cards exceeds limit of available cards: " + numberRounds);
             return;
         }
 
-        hostPokemon = new Pokemon[numberRounds];
-        guestPokemon = new Pokemon[numberRounds];
-
-        hostPokemon = shuffledList.subList(0, numberRounds).toArray(hostPokemon);
-        guestPokemon = shuffledList.subList(numberRounds, numberRounds*2).toArray(guestPokemon);
-    }
-
-    public Pokemon[] getOwnPokemon() {
-        if (connectionType == ConnectionType.HOST)
-            return hostPokemon;
-        else
-            return guestPokemon;
-    }
-
-    public Pokemon[] getOpponentsPokemon() {
-        if (connectionType != ConnectionType.HOST)
-            return hostPokemon;
-        else
-            return guestPokemon;
+        if (isHost()) {
+            self.setPokemon(shuffledList.subList(0, numberRounds));
+            opponent.setPokemon(shuffledList.subList(numberRounds, numberRounds*2));
+        }
+        else {
+            opponent.setPokemon(shuffledList.subList(0, numberRounds));
+            self.setPokemon(shuffledList.subList(numberRounds, numberRounds*2));
+        }
     }
 
     public int getRemainingRounds() { return numberRounds - numberRounds; }
@@ -213,7 +185,7 @@ public class Game implements Serializable {
     public int getNumberRounds() { return numberRounds; }
 
     public boolean myTurn() {
-        return activePlayer;
+        return selfIsActivePlayer;
     }
 
     public void opponentHasChoseStat() {
@@ -222,8 +194,8 @@ public class Game implements Serializable {
     }
 
     public void playerHasJoinedGame() {
-        if (!opponentConnected) {
-            opponentConnected = true;
+        if (!opponent.isConnected()) {
+            opponent.setConnected();
             activity.updatePlayerHasJoinedGame();
         }
     }
@@ -231,17 +203,17 @@ public class Game implements Serializable {
     public void updateActivePlayerAndPoints() {
         switch(winnerOfRound()) {
             case WINNER:
-                ownPoints+=2;
-                activePlayer = true;
+                self.roundWon();
+                selfIsActivePlayer = true;
                 break;
             case LOSER:
-                opponentPoints+=2;
-                activePlayer = false;
+                opponent.roundWon();
+                selfIsActivePlayer = false;
                 break;
             default:
                 //activePlayer = activePlayer; - do not change
-                ownPoints++;
-                opponentPoints++;
+                self.roundTied();
+                opponent.roundTied();
         }
     }
 
@@ -249,7 +221,7 @@ public class Game implements Serializable {
         Stats ownPokemonStats = getOwnPokemonCurrentTurn().getStats();
         Stats opponentPokemonStats = getOpponentPokemonCurrentTurn().getStats();
 
-        Stat choseStat = gameState.getChosenStat();
+        Stat choseStat = databaseConnector.getChosenStat();
 
         if (ownPokemonStats.getValueByStat(choseStat) > opponentPokemonStats.getValueByStat(choseStat)) {
             return ScoreResult.WINNER;
@@ -263,10 +235,10 @@ public class Game implements Serializable {
     }
 
     public ScoreResult gameResult() {
-        if (ownPoints > opponentPoints) {
+        if (self.getPoints() > opponent.getPoints()) {
             return ScoreResult.WINNER;
         }
-        else if (ownPoints < opponentPoints) {
+        else if (self.getPoints() < opponent.getPoints()) {
             return ScoreResult.LOSER;
         }
         else {
@@ -275,10 +247,18 @@ public class Game implements Serializable {
     }
 
     public int getOwnPoints() {
-        return ownPoints;
+        return self.getPoints();
     }
 
     public int getOpponentPoints() {
-        return opponentPoints;
+        return opponent.getPoints();
+    }
+
+    public Stat getChosenStat() {
+        return databaseConnector.getChosenStat();
+    }
+
+    public int getRoomNumber() {
+        return databaseConnector.getGameState().getRoomNumber();
     }
 }

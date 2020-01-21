@@ -21,7 +21,7 @@
 
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/buttonBack"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="center"
@@ -37,8 +37,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
-        android:layout_width="417dp"
-        android:layout_height="241dp"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
         android:layout_marginVertical="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -89,11 +89,11 @@
                 android:id="@+id/textViewNumberCards"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginHorizontal="5dp"
+                android:layout_marginVertical="10dp"
                 android:fontFamily="@font/pokemon_classic"
                 android:gravity="center"
-                android:layout_marginVertical="10dp"
-                android:layout_gravity="center"
                 android:text="20 Cards"
                 app:layout_constraintEnd_toStartOf="@+id/seekBarNumberCards" />
 
@@ -121,8 +121,6 @@
             android:text="New Game"
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@+id/layoutNumberCards" />
-
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

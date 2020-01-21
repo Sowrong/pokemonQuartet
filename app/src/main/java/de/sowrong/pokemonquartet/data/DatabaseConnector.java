@@ -18,30 +18,32 @@ import java.io.Serializable;
 import java.util.Random;
 
 import de.sowrong.pokemonquartet.game.ConnectionType;
-import de.sowrong.pokemonquartet.game.Game;
+import de.sowrong.pokemonquartet.game.MultiPlayerGame;
 
 public class DatabaseConnector implements Serializable {
     final static String DB_CONNECTOR_TAG = "DatabaseConnector";
-    final static int MIN_ROOM_ID = 10000;
-    final static int MAX_ROOM_ID = 100000;
+    final static int MIN_ROOM_ID = 1000;
+    final static int MAX_ROOM_ID = 9999;
     final static int MAX_ROOM_CREATE_TRIES = 10;
+
+    private static GameState gameState;
 
     private int randomSeed;
     private static DatabaseReference databaseReference;
     private static ValueEventListener eventListener;
-    private static Game game;
+    private static MultiPlayerGame multiPlayerGame;
     private Random generator;
 
-    public DatabaseConnector(Context context, final Game initialGame) {
+    public DatabaseConnector(Context context, final MultiPlayerGame initialMultiPlayerGame) {
         FirebaseApp.initializeApp(context);
-        game = initialGame;
+        multiPlayerGame = initialMultiPlayerGame;
         generator = new Random();
 
         eventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot != null) {
-                    GameState gameState = game.getGameState();
+                    GameState gameState = DatabaseConnector.getGameState();
 
                     for(DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
                         Object value = childSnapshot.getValue();
@@ -53,13 +55,13 @@ public class DatabaseConnector implements Serializable {
                             case GameState.NewStatChosenString:
                                 gameState.setNewStatChosen((Boolean) value);
                                 if ((Boolean) value) {
-                                    game.opponentHasChoseStat();
+                                    multiPlayerGame.opponentHasChoseStat();
                                 }
                                 break;
                             case GameState.GuestConnectedString:
                                 gameState.setGuestConnected((Boolean) value);
                                 if ((Boolean) value) {
-                                    game.playerHasJoinedGame();
+                                    multiPlayerGame.playerHasJoinedGame();
                                 }
                                 break;
                             case GameState.StartPlayerString:
@@ -108,7 +110,6 @@ public class DatabaseConnector implements Serializable {
         databaseReference.child(key).setValue(Pokemon.getStringByStat(value));
     }
 
-
     public void setDatabaseByRoomId(final int id) {
         randomSeed = id;
 
@@ -116,18 +117,20 @@ public class DatabaseConnector implements Serializable {
         databaseReference.addValueEventListener(eventListener);
     }
 
-    public void pathExists(final Game game, final int roomId, final Context context, final Intent intent, final Toast toast) {
+    public void pathExists(final MultiPlayerGame multiPlayerGame, final int roomId, final Context context, final Intent intent, final Toast toastNotExist, final Toast toastFull) {
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference().child(String.valueOf(roomId));
 
         rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                multiPlayerGame.callbackFinished();
+
                 if (dataSnapshot.getValue() == null) {
-                    toast.show();
+                    toastNotExist.show();
                 }
                 else {
-                    int numberCards = Game.MIN_CARDS;
-                    GameState gameState = game.getGameState();
+                    int numberCards = MultiPlayerGame.MIN_CARDS;
+                    GameState gameState = DatabaseConnector.getGameState();
 
                     for(DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
                         Object value = childSnapshot.getValue();
@@ -167,7 +170,13 @@ public class DatabaseConnector implements Serializable {
                         }
                     }
 
-                    game.joinGame(roomId, numberCards);
+                    if (gameState.isGuestConnected()) {
+                        toastFull.show();
+                        return;
+                    }
+
+
+                    multiPlayerGame.joinGame(roomId, numberCards);
                     context.startActivity(intent);
                 }
             }
@@ -179,7 +188,7 @@ public class DatabaseConnector implements Serializable {
         });
     }
 
-    private void createDatabase(final Game game, final Context context, final Intent intent, final Toast toast, final int numberCards, final int tries) {
+    private void createDatabase(final MultiPlayerGame multiPlayerGame, final Context context, final Intent intent, final Toast toast, final int numberCards, final int tries) {
         if (tries > MAX_ROOM_CREATE_TRIES) {
             toast.show();
             return;
@@ -192,7 +201,7 @@ public class DatabaseConnector implements Serializable {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() == null) {
-                    GameState gameState = game.getGameState();
+                    GameState gameState = DatabaseConnector.getGameState();
                     gameState.setRandomSeed(randomSeed);
 
                     databaseReference = FirebaseDatabase.getInstance().getReference().child(String.valueOf(randomSeed));
@@ -206,10 +215,10 @@ public class DatabaseConnector implements Serializable {
                     databaseReference.addValueEventListener(eventListener);
 
                     context.startActivity(intent);
-                    game.gameStarted();
+                    multiPlayerGame.callbackFinished();
                 }
                 else {
-                    createDatabase(game, context, intent, toast, numberCards, tries+1);
+                    createDatabase(multiPlayerGame, context, intent, toast, numberCards, tries+1);
                 }
             }
 
@@ -221,8 +230,8 @@ public class DatabaseConnector implements Serializable {
     }
 
 
-    public void createDatabase(final Game game, final Context context, final Intent intent, final Toast toast, final int numberCards) {
-        createDatabase(game, context, intent, toast, numberCards, 0);
+    public void createDatabase(final MultiPlayerGame multiPlayerGame, final Context context, final Intent intent, final Toast toast, final int numberCards) {
+        createDatabase(multiPlayerGame, context, intent, toast, numberCards, 0);
     }
 
     public void deleteDatabase() {
@@ -234,7 +243,28 @@ public class DatabaseConnector implements Serializable {
         return randomSeed;
     }
 
-    public static Game getGame() {
-        return game;
+    public static MultiPlayerGame getMultiPlayerGame() {
+        return multiPlayerGame;
+    }
+
+    public boolean isNewStatChosen() {
+        return gameState.isNewStatChosen();
+    }
+
+    public void setChosenStat(Stat stat) {
+        gameState.setChosenStat(stat);
+        setValue(GameState.ChosenStatString, stat);
+    }
+
+    public Stat getChosenStat() {
+        return gameState.getChosenStat();
+    }
+
+    public static GameState getGameState() {
+        if (gameState == null) {
+            gameState = new GameState();
+        }
+
+        return gameState;
     }
 }

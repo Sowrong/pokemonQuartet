@@ -7,6 +7,21 @@
     android:layout_height="match_parent"
     android:background="@color/colorBackgroundGame">
 
+    <Button
+        android:id="@+id/buttonBack"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="@drawable/btn_white"
+        android:fontFamily="@font/pokemon_classic"
+        android:gravity="center"
+        android:onClick="back"
+        android:text="←"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewBanner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/imageViewBanner"
         android:layout_height="80dp"
@@ -153,14 +168,43 @@
     </androidx.cardview.widget.CardView>
 
 
-    <ImageView
-        android:id="@+id/imageViewPokemon"
-        android:layout_width="wrap_content"
-        android:layout_height="200dp"
+    <LinearLayout
+        android:id="@+id/linearLayoutPokemonImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_marginVertical="50dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutChoosePokemonStat"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardViewPokemonName"
-        app:srcCompat="@drawable/pokemon_tangela" />
+        app:layout_constraintTop_toBottomOf="@+id/cardViewPokemonName">
+
+
+        <ImageView
+            android:id="@+id/imageViewPokemon"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cardViewPokemonName"
+            app:srcCompat="@drawable/pokemon_tangela" />
+
+
+        <TextView
+            android:id="@+id/textViewPokemonName"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:fontFamily="@font/pokemon_classic"
+            android:gravity="center"
+            android:text="#114  Tangela"
+            android:textSize="15dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewPokemon" />
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/linearLayoutChoosePokemonStat"
@@ -168,10 +212,10 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
+        android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toTopOf="@+id/cardView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewPokemonName">
+        app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -290,7 +334,8 @@
         app:cardCornerRadius="30dp"
         app:cardElevation="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="30dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -311,19 +356,4 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
-
-    <TextView
-        android:id="@+id/textViewPokemonName"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:fontFamily="@font/pokemon_classic"
-        android:gravity="center"
-        android:text="#114  Tangela"
-        android:textSize="15dp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageViewPokemon" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

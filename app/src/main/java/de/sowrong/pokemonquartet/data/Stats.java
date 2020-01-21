@@ -1,9 +1,13 @@
 package de.sowrong.pokemonquartet.data;
 // Stats.java
 import java.io.Serializable;
+import java.util.Random;
+
 import com.fasterxml.jackson.annotation.*;
 
 public class Stats implements Serializable {
+    private final static int USE_FIRST_STATS = 6;
+
     private long hp;
     private long attack;
     private long defense;
@@ -63,6 +67,20 @@ public class Stats implements Serializable {
                 return speed;
             default:
                 return total;
+        }
+    }
+
+    public static Stat getRandomStat() {
+        Random random = new Random();
+
+        int statId = random.nextInt(USE_FIRST_STATS);
+        switch(statId) {
+            case 0: return Stat.ATTACK;
+            case 1: return Stat.DEFENSE;
+            case 2: return Stat.SPATK;
+            case 3: return Stat.SPDEF;
+            case 4: return Stat.HP;
+            default:    return Stat.SPEED;
         }
     }
 }

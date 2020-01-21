@@ -32,7 +32,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imageTitle" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/buttonBack"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="center"
@@ -40,10 +40,10 @@
         android:fontFamily="@font/pokemon_classic"
         android:gravity="center"
         android:onClick="back"
-        android:textSize="20dp"
         android:text="←"
+        android:textSize="20dp"
         app:layout_constraintBottom_toBottomOf="@+id/imageTitle"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="5dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

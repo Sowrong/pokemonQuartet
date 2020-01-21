@@ -17,8 +17,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NewGameActivity" />
-        <activity android:name=".RunningGameActivity" />
+        <activity android:name=".NewSinglePlayerGameActivity" />
+        <activity android:name=".NewMultiPlayerGameActivity" />
+        <activity android:name=".RunningSinglePlayerGameActivity" />
+        <activity android:name=".RunningMultiPlayerGameActivity" />
         <activity android:name=".HelpActivity" />
         <activity android:name=".SettingsActivity" />
     </application>

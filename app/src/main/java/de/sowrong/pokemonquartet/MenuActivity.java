@@ -13,7 +13,6 @@ import java.util.Random;
 
 import de.sowrong.pokemonquartet.data.Importer;
 import de.sowrong.pokemonquartet.data.Pokemon;
-import de.sowrong.pokemonquartet.data.Stats;
 
 public class MenuActivity extends AppCompatActivity {
 
@@ -33,14 +32,14 @@ public class MenuActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void startNewGame(View view) {
-        Intent intent = new Intent(this, NewGameActivity.class);
+    public void startMultiPlayerGame(View view) {
+        Intent intent = new Intent(this, NewMultiPlayerGameActivity.class);
         startActivity(intent);
     }
 
-    public void quitGame(View view) {
-        finish();
-        System.exit(0);
+    public void startSiglePlayerGame(View view) {
+        Intent intent = new Intent(this, NewSinglePlayerGameActivity.class);
+        startActivity(intent);
     }
 
     public void displayRandomPokemon(View view) {

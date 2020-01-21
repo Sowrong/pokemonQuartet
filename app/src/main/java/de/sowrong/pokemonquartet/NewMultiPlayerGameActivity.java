@@ -1,19 +1,15 @@
 package de.sowrong.pokemonquartet;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.Checkable;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -21,20 +17,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.Serializable;
-import java.util.Random;
+import de.sowrong.pokemonquartet.game.MultiPlayerGame;
 
-import de.sowrong.pokemonquartet.data.Importer;
-import de.sowrong.pokemonquartet.data.Pokemon;
-import de.sowrong.pokemonquartet.data.Stat;
-import de.sowrong.pokemonquartet.game.Game;
-
-public class NewGameActivity extends AppCompatActivity {
-    private Game game;
+public class NewMultiPlayerGameActivity extends AppCompatActivity {
+    private MultiPlayerGame multiPlayerGame;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_new_game);
+        setContentView(R.layout.layout_new_multiplayer_game);
 
         final EditText editText = findViewById(R.id.textViewRoomIdInput);
         editText.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
@@ -58,9 +48,9 @@ public class NewGameActivity extends AppCompatActivity {
 
         final SeekBar seekBar = findViewById(R.id.seekBarNumberCards);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            seekBar.setMin(Game.MIN_CARDS);
+            seekBar.setMin(MultiPlayerGame.MIN_CARDS);
         }
-        seekBar.setMax(Game.MAX_CARDS);
+        seekBar.setMax(MultiPlayerGame.MAX_CARDS);
 
         final TextView textViewNumberCards = findViewById(R.id.textViewNumberCards);
         textViewNumberCards.setText(seekBar.getProgress() + " Cards");
@@ -82,15 +72,15 @@ public class NewGameActivity extends AppCompatActivity {
     public void newGame(View view) {
         // see if host was selected, otherwise self is guest
 
-        game = Game.getGame();
-        game.initGame(this);
+        multiPlayerGame = MultiPlayerGame.getMultiPlayerGame();
+        multiPlayerGame.initGame(this);
 
 
-        if (game.isWaitingForCallback()) {
+        if (multiPlayerGame.isWaitingForCallback()) {
             return;
         }
 
-        Intent intent = new Intent(this, RunningGameActivity.class);
+        Intent intent = new Intent(this, RunningMultiPlayerGameActivity.class);
 
         CheckBox checkboxHostGuest = findViewById(R.id.checkboxHostGuest);
 
@@ -101,15 +91,15 @@ public class NewGameActivity extends AppCompatActivity {
             final SeekBar seekBar = findViewById(R.id.seekBarNumberCards);
             int numberCards = seekBar.getProgress();
 
-            if (numberCards < Game.MIN_CARDS) {
-                Toast toast = Toast.makeText(this, "The minimum amount of cards is " + Game.MIN_CARDS, Toast.LENGTH_LONG);
+            if (numberCards < MultiPlayerGame.MIN_CARDS) {
+                Toast toast = Toast.makeText(this, "The minimum amount of cards is " + MultiPlayerGame.MIN_CARDS, Toast.LENGTH_LONG);
                 toast.show();
 
                 return;
             }
 
             Toast toast = Toast.makeText(this, "Could not create room!", Toast.LENGTH_LONG);
-            game.startGame(this, intent, toast, numberCards);
+            multiPlayerGame.startGame(this, intent, toast, numberCards);
         }
         else {
             // GUEST
@@ -125,9 +115,10 @@ public class NewGameActivity extends AppCompatActivity {
 
             // check if room number exists
 
-            Toast toast = Toast.makeText(this, "This room doesn't exist!", Toast.LENGTH_LONG);
+            Toast toastNotExist = Toast.makeText(this, "This room doesn't exist!", Toast.LENGTH_LONG);
+            Toast toastFull = Toast.makeText(this, "This room is already full!", Toast.LENGTH_LONG);
 
-            game.checkRoomExists(roomId, this, intent, toast);
+            multiPlayerGame.checkRoomExists(roomId, this, intent, toastNotExist, toastFull);
         }
     }
 

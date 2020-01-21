@@ -9,16 +9,15 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import de.sowrong.pokemonquartet.data.DatabaseConnector;
 import de.sowrong.pokemonquartet.data.Pokemon;
 import de.sowrong.pokemonquartet.data.Stat;
 import de.sowrong.pokemonquartet.data.Stats;
-import de.sowrong.pokemonquartet.game.Game;
+import de.sowrong.pokemonquartet.game.MultiPlayerGame;
 import de.sowrong.pokemonquartet.game.ScoreResult;
 
-public class RunningGameActivity extends AppCompatActivity {
+public class RunningMultiPlayerGameActivity extends AppCompatActivity {
     private View viewChooseCompareStat, viewComparePokemon, viewShowPokemonInfo, viewGameEnd;
-    private Game game;
+    private MultiPlayerGame multiPlayerGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +29,11 @@ public class RunningGameActivity extends AppCompatActivity {
 
         setContentView(viewChooseCompareStat);
 
-        //game = (Game)getIntent().getSerializableExtra("Game");
-        game = DatabaseConnector.getGame();
-        game.initRunningGame(this);
+        //multiPlayerGame = (MultiPlayerGame)getIntent().getSerializableExtra("MultiPlayerGame");
+        multiPlayerGame = MultiPlayerGame.getMultiPlayerGame();
+        multiPlayerGame.initRunningGame(this);
 
-        game.initPokemonByRoomId();
+        multiPlayerGame.initPokemonByRoomId();
         displayPokemonByTurn();
         updateViewNumberTurns();
         updateRoomNumber();
@@ -43,18 +42,18 @@ public class RunningGameActivity extends AppCompatActivity {
     @Override
     protected void onDestroy () {
         super.onDestroy();
-        game.endGame();
+        multiPlayerGame.endGame();
     }
 
     public void showComparePokemon(Pokemon pokemonPlayer, Pokemon pokemonOpponent, Stat compareStat) {
         setContentView(viewComparePokemon);
 
-        game.updateActivePlayerAndPoints();
+        multiPlayerGame.updateActivePlayerAndPoints();
 
-        if(game.winnerOfRound() == ScoreResult.WINNER) {
+        if(multiPlayerGame.winnerOfRound() == ScoreResult.WINNER) {
             updatePointsAndRound("You Win!");
         }
-        else if (game.winnerOfRound() == ScoreResult.LOSER){
+        else if (multiPlayerGame.winnerOfRound() == ScoreResult.LOSER){
             updatePointsAndRound("You Lose!");
         }
         else {
@@ -80,16 +79,16 @@ public class RunningGameActivity extends AppCompatActivity {
         textViewPokemonName2.setText(String.format("#%s  %s", pokemonPlayer.getID(), pokemonPlayer.getName()));
         textViewPokemonInfoCaption2.setText(Pokemon.getStringByStat(compareStat) + ": " + pokemonPlayer.getStatValue(compareStat));
 
-        if(game.isLastRound()) {
-            Button nextButton = findViewById(R.id.buttonChangePokemon);
+        if(multiPlayerGame.isLastRound()) {
+            Button nextButton = findViewById(R.id.buttonNextRound);
             nextButton.setText("Final Score");
         }
     }
 
     private void displayPokemonByTurn() {
-        Pokemon pokemon = game.getOwnPokemonCurrentTurn();
+        Pokemon pokemon = multiPlayerGame.getOwnPokemonCurrentTurn();
 
-        if (game.myTurn()) {
+        if (multiPlayerGame.myTurn()) {
             setContentView(viewChooseCompareStat);
             updateViewChooseCompareStat(pokemon);
         }
@@ -101,21 +100,21 @@ public class RunningGameActivity extends AppCompatActivity {
 
     private void updateViewNumberTurns() {
         TextView textViewNumberTurns = findViewById(R.id.textViewRounds);
-        textViewNumberTurns.setText(game.getCurrentRound() + "/" + game.getNumberRounds());
+        textViewNumberTurns.setText(multiPlayerGame.getCurrentRound() + "/" + multiPlayerGame.getNumberRounds());
     }
 
     private void updateRoomNumber() {
-        if(game.isHost()) {
+        if(multiPlayerGame.isHost()) {
             TextView textViewNumberTurns = findViewById(R.id.textViewGameInfo);
-            textViewNumberTurns.setText("Room Number: " + game.getGameState().getRoomNumber());
+            textViewNumberTurns.setText("Room Number: " + multiPlayerGame.getRoomNumber());
         }
     }
 
     public void updatePlayerHasJoinedGame() {
         TextView textViewNumberTurns = findViewById(R.id.textViewGameInfo);
 
-        if(game.myTurn()) {
-            textViewNumberTurns.setText("Player joined the game.");
+        if(multiPlayerGame.isHost()) {
+            textViewNumberTurns.setText("Player joined the Game.");
         }
         else {
             textViewNumberTurns.setText("Opponent is choosing...");
@@ -146,27 +145,27 @@ public class RunningGameActivity extends AppCompatActivity {
                 break;
         }
 
-        if (game.takeTurn(selectedStat, this)) {
-            showComparePokemon(game.getOwnPokemonCurrentTurn(), game.getOpponentPokemonCurrentTurn(), selectedStat);
+        if (multiPlayerGame.takeTurn(selectedStat, this)) {
+            showComparePokemon(multiPlayerGame.getOwnPokemonCurrentTurn(), multiPlayerGame.getOpponentPokemonCurrentTurn(), selectedStat);
         }
     }
 
     public void nextRound(View view) {
-        if (game.isLastRound()) {
+        if (multiPlayerGame.isLastRound()) {
             setContentView(viewGameEnd);
             updateViewEndGame();
             return;
         }
 
-        game.confirmStartRound();
+        multiPlayerGame.confirmStartRound();
 
-        if (game.myTurn()) {
+        if (multiPlayerGame.myTurn()) {
             setContentView(viewChooseCompareStat);
-            updateViewChooseCompareStat(game.getOwnPokemonCurrentTurn());
+            updateViewChooseCompareStat(multiPlayerGame.getOwnPokemonCurrentTurn());
         }
         else {
             setContentView(viewShowPokemonInfo);
-            updateViewShowPokemonInfo(game.getOwnPokemonCurrentTurn());
+            updateViewShowPokemonInfo(multiPlayerGame.getOwnPokemonCurrentTurn());
         }
     }
 
@@ -179,11 +178,11 @@ public class RunningGameActivity extends AppCompatActivity {
 
         ImageView imageViewWinLosePokemon = findViewById(R.id.imageViewPokemon);
 
-        textViewOwnPoints.setText(game.getOwnPoints() + " Points");
-        textViewOpponentPoints.setText(game.getOpponentPoints() + " Points");
+        textViewOwnPoints.setText(multiPlayerGame.getOwnPoints() + " Points");
+        textViewOpponentPoints.setText(multiPlayerGame.getOpponentPoints() + " Points");
         String imageUri;
 
-        switch(game.gameResult()) {
+        switch(multiPlayerGame.gameResult()) {
             case WINNER:
                 textViewCongratulations.setText("Congratulations!");
                 textViewOwnWinLose.setText("You Won");
@@ -218,9 +217,9 @@ public class RunningGameActivity extends AppCompatActivity {
         TextView textViewOpponentPoints = findViewById(R.id.textViewOpponentsPoints);
 
         textViewRoundName.setText(infoText);
-        textViewRoundNumber.setText(String.format("%d/%d", game.getCurrentRound(), game.getNumberRounds()));
-        textViewOwnPoints.setText(String.valueOf(game.getOwnPoints()));
-        textViewOpponentPoints.setText(String.valueOf(game.getOpponentPoints()));
+        textViewRoundNumber.setText(String.format("%d/%d", multiPlayerGame.getCurrentRound(), multiPlayerGame.getNumberRounds()));
+        textViewOwnPoints.setText(String.valueOf(multiPlayerGame.getOwnPoints()));
+        textViewOpponentPoints.setText(String.valueOf(multiPlayerGame.getOpponentPoints()));
     }
 
     private void updateViewShowPokemonInfo(Pokemon pokemon) {
@@ -287,7 +286,7 @@ public class RunningGameActivity extends AppCompatActivity {
     }
 
     public void showResultsForInactivePlayer(View view) {
-        showComparePokemon(game.getOwnPokemonCurrentTurn(), game.getOpponentPokemonCurrentTurn(), game.getGameState().getChosenStat());
+        showComparePokemon(multiPlayerGame.getOwnPokemonCurrentTurn(), multiPlayerGame.getOpponentPokemonCurrentTurn(), multiPlayerGame.getChosenStat());
     }
 
     public void back(View view) {

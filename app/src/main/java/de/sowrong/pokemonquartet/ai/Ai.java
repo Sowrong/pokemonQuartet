@@ -1,17 +1,18 @@
 package de.sowrong.pokemonquartet.ai;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.sowrong.pokemonquartet.data.Pokemon;
 import de.sowrong.pokemonquartet.data.Stat;
 import de.sowrong.pokemonquartet.data.Stats;
-import de.sowrong.pokemonquartet.game.Game;
+import de.sowrong.pokemonquartet.game.MultiPlayerGame;
+import de.sowrong.pokemonquartet.game.SinglePlayerGame;
 
 public class Ai {
-    private ArrayList<Pokemon> cardPool;
     private Stats optimumStats;
-    private Game game;
-    private int round;
+    private Difficulty difficulty;
+    SinglePlayerGame singlePlayerGame;
 
     private final long MAX_ATTACK = 134;
     private final long MAX_DEFENSE = 180;
@@ -20,10 +21,9 @@ public class Ai {
     private final long MAX_HP = 140; // actually 250 is the highest
     private final long MAX_SPEED = 140;
 
-    public Ai(ArrayList<Pokemon> cardPool, Game game) {
-        this.cardPool = cardPool;
-        this.game = game;
-        this.round = 0;
+    public Ai(SinglePlayerGame singlePlayerGame, Difficulty difficulty) {
+        this.singlePlayerGame = singlePlayerGame;
+        this.difficulty = difficulty;
 
         optimumStats = new Stats();
 
@@ -33,24 +33,62 @@ public class Ai {
         optimumStats.setSPDef(MAX_SPDEFENSE);
         optimumStats.setHP(MAX_HP);
         optimumStats.setSpeed(MAX_SPEED);
-
-
     }
 
-    public AiMove nextMove() {
-        if (round >= cardPool.size()) {
-            return null;
+    public Stat nextMove() {
+        Pokemon aiPokemon = singlePlayerGame.getAiPokemonCurrentTurn();
+        Pokemon playerPokemon = singlePlayerGame.getPlayerPokemonCurrentTurn();
+
+        Stat nextStat;
+
+        switch (difficulty) {
+            case MEDIUM:
+                nextStat = calculateMediumStat(aiPokemon);
+                break;
+            case HARD:
+                nextStat = calculateHardStat(aiPokemon.getStats(), playerPokemon.getStats());
+                break;
+            default:
+                nextStat = Stats.getRandomStat();
         }
 
-        Pokemon nextPokemon = cardPool.get(round);
-        Stat nextStat = calculateBestStat(nextPokemon);
-
-        round++;
-
-        return new AiMove(nextPokemon, nextStat);
+        return nextStat;
     }
 
-    private Stat calculateBestStat(Pokemon pokemon) {
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    private Stat calculateHardStat(Stats aiPokemonStats, Stats playerPokemonStats) {
+        if ((aiPokemonStats.getAttack()  - playerPokemonStats.getAttack()) > 0) {
+            return Stat.ATTACK;
+        }
+
+        if ((aiPokemonStats.getDefense() - playerPokemonStats.getDefense()) > 0) {
+            return Stat.DEFENSE;
+        }
+
+        if ((aiPokemonStats.getSPAtk() - playerPokemonStats.getSPAtk()) > 0) {
+            return Stat.SPATK;
+        }
+
+        if ((aiPokemonStats.getSPDef() - playerPokemonStats.getSPDef()) > 0) {
+            return Stat.SPDEF;
+        }
+
+        if ((aiPokemonStats.getHP() - playerPokemonStats.getHP()) > 0) {
+            return Stat.HP;
+        }
+
+        if ((aiPokemonStats.getSpeed() - playerPokemonStats.getSpeed()) > 0) {
+            return Stat.SPEED;
+        }
+
+        return Stat.HP; // default
+    }
+
+
+    private Stat calculateMediumStat(Pokemon pokemon) {
         // the smaller the better (closer to optimum)
         long diffToMax = optimumStats.getAttack() - pokemon.getStats().getAttack();
         Stat bestStat = Stat.ATTACK;
