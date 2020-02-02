@@ -45,6 +45,7 @@ public class RunningSinglePlayerGameActivity extends AppCompatActivity {
     @Override
     protected void onDestroy () {
         super.onDestroy();
+        SinglePlayerGame.store();
     }
 
     private void displayChooseStatMessage() {

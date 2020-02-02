@@ -1,5 +1,6 @@
 package de.sowrong.pokemonquartet.ai;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,10 +10,10 @@ import de.sowrong.pokemonquartet.data.Stats;
 import de.sowrong.pokemonquartet.game.MultiPlayerGame;
 import de.sowrong.pokemonquartet.game.SinglePlayerGame;
 
-public class Ai {
+public class Ai implements Serializable {
     private Stats optimumStats;
     private Difficulty difficulty;
-    SinglePlayerGame singlePlayerGame;
+    private SinglePlayerGame singlePlayerGame;
 
     private final long MAX_ATTACK = 134;
     private final long MAX_DEFENSE = 180;

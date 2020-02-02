@@ -1,11 +1,11 @@
 package de.sowrong.pokemonquartet.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
-public class Player {
+public class Player implements Serializable {
 
-    private List<Pokemon> pokemon;
+    private ArrayList<Pokemon> pokemon;
     private int points;
     boolean connected;
 
@@ -15,7 +15,7 @@ public class Player {
         pokemon = new ArrayList<>();
     }
 
-    public void reset(List<Pokemon> newPokemonSet) {
+    public void reset(ArrayList<Pokemon> newPokemonSet) {
         this.points = 0;
         pokemon = newPokemonSet;
     }
@@ -24,7 +24,7 @@ public class Player {
         return connected;
     }
 
-    public void setPokemon(List<Pokemon> pokemon) {
+    public void setPokemon(ArrayList<Pokemon> pokemon) {
         this.pokemon = pokemon;
     }
 

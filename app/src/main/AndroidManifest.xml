@@ -22,7 +22,6 @@
         <activity android:name=".RunningSinglePlayerGameActivity" />
         <activity android:name=".RunningMultiPlayerGameActivity" />
         <activity android:name=".HelpActivity" />
-        <activity android:name=".SettingsActivity" />
     </application>
 
 </manifest>

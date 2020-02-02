@@ -1,6 +1,5 @@
 package de.sowrong.pokemonquartet;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,7 +32,9 @@ public class NewSinglePlayerGameActivity extends AppCompatActivity {
 
         Button continueButton = findViewById(R.id.buttonContinueGame);
 
-        if (SinglePlayerGame.singlePlayerGameExists() && !SinglePlayerGame.getSinglePlayerGame().hasEnded()) {
+        SinglePlayerGame.init(this);
+
+        if (SinglePlayerGame.restore() && !SinglePlayerGame.getSinglePlayerGame().hasEnded()) {
             continueButton.setVisibility(View.VISIBLE);
         }
         else {
@@ -68,7 +69,7 @@ public class NewSinglePlayerGameActivity extends AppCompatActivity {
 
         Button continueButton = findViewById(R.id.buttonContinueGame);
 
-        if (SinglePlayerGame.singlePlayerGameExists() && !SinglePlayerGame.getSinglePlayerGame().hasEnded()) {
+        if (SinglePlayerGame.restore() && !SinglePlayerGame.getSinglePlayerGame().hasEnded()) {
             continueButton.setVisibility(View.VISIBLE);
         }
         else {

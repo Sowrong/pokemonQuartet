@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+import de.sowrong.pokemonquartet.R;
 import de.sowrong.pokemonquartet.RunningSinglePlayerGameActivity;
 import de.sowrong.pokemonquartet.ai.Ai;
 import de.sowrong.pokemonquartet.ai.Difficulty;
@@ -15,6 +16,16 @@ import de.sowrong.pokemonquartet.data.Importer;
 import de.sowrong.pokemonquartet.data.Player;
 import de.sowrong.pokemonquartet.data.Pokemon;
 import de.sowrong.pokemonquartet.data.Stat;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import android.app.Activity;
+
 
 public class SinglePlayerGame implements Serializable {
     private ArrayList<Pokemon> pokemon;
@@ -26,21 +37,28 @@ public class SinglePlayerGame implements Serializable {
     private boolean selfPlayerIsActivePlayer;
     private Stat currentRoundStat;
     private boolean hasEndEnded;
+    private static Context context;
 
     private static SinglePlayerGame singlePlayerGame;
 
     public static final int MIN_CARDS = 2;
     public static final int MAX_CARDS = 30;
 
-    public SinglePlayerGame(Difficulty difficulty, int numberRounds, Context context) {
-        selfPlayer = new Player(true);
-        aiPlayer = new Player(true);
-        ai = new Ai(this, difficulty);
+    public SinglePlayerGame(Difficulty difficulty, int numberRounds, Context newContext) {
+        context = newContext;
+        this.selfPlayer = new Player(true);
+        this.aiPlayer = new Player(true);
+        this.ai = new Ai(this, difficulty);
         this.numberRounds = numberRounds;
-        currentRound = 1;
+        this.currentRound = 1;
         this.selfPlayerIsActivePlayer = true;
-        pokemon = new ArrayList<>(Arrays.asList(Importer.getPokemon(context.getAssets())));
+        this.pokemon = new ArrayList<>(Arrays.asList(Importer.getPokemon(context.getAssets())));
     }
+
+    public static void init(Context newContext) {
+        context = newContext;
+    }
+
 
     public void reset(Difficulty difficulty, int numberRounds) {
         this.ai.setDifficulty(difficulty);
@@ -51,8 +69,11 @@ public class SinglePlayerGame implements Serializable {
         ArrayList<Pokemon> shuffledList = (ArrayList<Pokemon>) pokemon.clone();
         Collections.shuffle(shuffledList);
 
-        selfPlayer.reset(shuffledList.subList(0, numberRounds));
-        aiPlayer.reset(shuffledList.subList(numberRounds, numberRounds*2));
+        ArrayList<Pokemon> shuffledPlayerPokemon = new ArrayList<>(shuffledList.subList(0, numberRounds));
+        ArrayList<Pokemon> shuffledAiPokemon = new ArrayList<>(shuffledList.subList(numberRounds, numberRounds*2));
+
+        selfPlayer.reset(shuffledPlayerPokemon);
+        aiPlayer.reset(shuffledAiPokemon);
         currentRound = 1;
     }
 
@@ -68,8 +89,65 @@ public class SinglePlayerGame implements Serializable {
         return singlePlayerGame;
     }
 
-    public static boolean singlePlayerGameExists() {
-        return singlePlayerGame != null;
+    public static void store() {
+        persistentWrite(singlePlayerGame);
+    }
+
+    public static boolean restore() {
+        if (singlePlayerGame == null) {
+            singlePlayerGame = persistentRead();
+        }
+
+        return (singlePlayerGame != null);
+    }
+
+    public static void persistentWrite(SinglePlayerGame singlePlayerGame) {
+        ObjectOutputStream objectOut = null;
+        try {
+            FileOutputStream fileOut = context.openFileOutput(context.getString(R.string.saveGameFilename), Activity.MODE_PRIVATE);
+            objectOut = new ObjectOutputStream(fileOut);
+            objectOut.writeObject(singlePlayerGame);
+            fileOut.getFD().sync();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d("persistentWrite", "Save game file could not be created due to an ioexception.");
+        } finally {
+            if (objectOut != null) {
+                try {
+                    objectOut.close();
+                } catch (IOException e) {
+                    Log.d("persistentWrite", "Save game file could not be closed due to an ioexception.");
+                }
+            }
+        }
+    }
+
+    public static SinglePlayerGame persistentRead() {
+        ObjectInputStream objectIn = null;
+        try {
+            FileInputStream fileIn = context.getApplicationContext().openFileInput(context.getString(R.string.saveGameFilename));
+            objectIn = new ObjectInputStream(fileIn);
+            return (SinglePlayerGame)objectIn.readObject();
+        } catch (FileNotFoundException e) {
+            Log.e("SinglePlayerGame", "Input save game file " + context.getString(R.string.saveGameFilename) + " not found.");
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            Log.e("SinglePlayerGame", "Input save game exception ClassNotFound.");
+            return null;
+        } finally {
+            if (objectIn != null) {
+                try {
+                    objectIn.close();
+                } catch (IOException e) {
+                    Log.e("SinglePlayerGame", "Input save game file " + context.getString(R.string.saveGameFilename) + " could not be closed.");
+                    return null;
+                }
+            }
+        }
+        return null;
     }
 
     public boolean isLastRound() {

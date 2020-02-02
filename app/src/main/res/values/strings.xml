@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Pokemon Quartet</string>
     <string name="title">PoKéMoN\nQuartet</string>
+    <string name="saveGameFilename">singlePlayer.savegame</string>
 </resources>

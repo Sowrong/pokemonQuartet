@@ -1,17 +1,13 @@
 package de.sowrong.pokemonquartet.data;
 
 import java.io.Serializable;
-import java.util.Random;
-
-import de.sowrong.pokemonquartet.game.ConnectionType;
 
 public class GameState implements Serializable {
     private int turnNumber;
-    private int roomNumber;
+    private int randomSeed;
     private boolean newStatChosen;
     private boolean guestConnected;
     private Stat chosenStat;
-    private ConnectionType startPlayer;
 
     public static final String TurnNumberString =  "TurnNumber";
     public static final String GameRandomSeedString = "GameRandomSeed";
@@ -19,23 +15,13 @@ public class GameState implements Serializable {
     public static final String GuestConnectedString = "GuestConnected";
     public static final String NumberCardsString = "NumberCards";
     public static final String ChosenStatString = "ChosenStat";
-    public static final String StartPlayerString = "StartPlayer";
 
 
     public GameState() {
         turnNumber = 1;
-        roomNumber = 0;
+        randomSeed = 0;
         guestConnected = false;
         newStatChosen = false;
-
-        Random startPlayerPicker = new Random();
-
-        if (startPlayerPicker.nextBoolean()){
-            startPlayer = ConnectionType.HOST;
-        }
-        else {
-            startPlayer = ConnectionType.GUEST;
-        }
     }
 
     public int getTurnNumber() {
@@ -46,12 +32,12 @@ public class GameState implements Serializable {
         this.turnNumber = turnNumber;
     }
 
-    public int getRoomNumber() {
-        return roomNumber;
+    public int getRandomSeed() {
+        return randomSeed;
     }
 
     public void setRandomSeed(int roomNumber) {
-        this.roomNumber = roomNumber;
+        this.randomSeed = roomNumber;
     }
 
     public boolean isNewStatChosen() {
@@ -76,13 +62,5 @@ public class GameState implements Serializable {
 
     public void setChosenStat(Stat chosenStat) {
         this.chosenStat = chosenStat;
-    }
-
-    public ConnectionType getStartPlayer() {
-        return startPlayer;
-    }
-
-    public void setStartPlayer(ConnectionType startPlayer) {
-        this.startPlayer = startPlayer;
     }
 }

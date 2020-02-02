@@ -110,7 +110,6 @@ public class MultiPlayerGame implements Serializable {
         connectionType = ConnectionType.GUEST;
         this.numberRounds = numberCards;
         databaseConnector.setDatabaseByRoomId(roomId);
-        // TODO only join game if it is not running, yet
         databaseConnector.setValue(GameState.GuestConnectedString, true);
         selfIsActivePlayer = false; // HOST always starts
         callbackFinished();
@@ -158,25 +157,28 @@ public class MultiPlayerGame implements Serializable {
 
     public void checkRoomExists(int roomId, Context context, Intent intent, Toast toastNotExist, Toast toastFull) {
         this.waitingForCallbackFinished = true;
-        databaseConnector.pathExists(this, roomId, context, intent, toastNotExist, toastFull);
+        databaseConnector.checkRoomExists(this, roomId, context, intent, toastNotExist, toastFull);
     }
 
-    public void initPokemonByRoomId() {
+    public void initPokemonByRandomSeedId() {
         ArrayList<Pokemon> shuffledList = (ArrayList<Pokemon>) pokemon.clone();
-        Collections.shuffle(shuffledList, new Random(databaseConnector.getRandomSeed()));
+        Collections.shuffle(shuffledList, new Random(databaseConnector.getRoomNumber()));
 
         if (numberRounds > pokemon.size()/2 || numberRounds < 0) {
             Log.e("MultiPlayerGame", "Number of selected cards exceeds limit of available cards: " + numberRounds);
             return;
         }
 
+        ArrayList<Pokemon> shuffledPokemonSet1 = new ArrayList<>(shuffledList.subList(0, numberRounds));
+        ArrayList<Pokemon> shuffledPokemonSet2 = new ArrayList<>(shuffledList.subList(numberRounds, numberRounds*2));
+
         if (isHost()) {
-            self.setPokemon(shuffledList.subList(0, numberRounds));
-            opponent.setPokemon(shuffledList.subList(numberRounds, numberRounds*2));
+            self.setPokemon(shuffledPokemonSet1);
+            opponent.setPokemon(shuffledPokemonSet2);
         }
         else {
-            opponent.setPokemon(shuffledList.subList(0, numberRounds));
-            self.setPokemon(shuffledList.subList(numberRounds, numberRounds*2));
+            opponent.setPokemon(shuffledPokemonSet1);
+            self.setPokemon(shuffledPokemonSet2);
         }
     }
 
@@ -259,6 +261,6 @@ public class MultiPlayerGame implements Serializable {
     }
 
     public int getRoomNumber() {
-        return databaseConnector.getGameState().getRoomNumber();
+        return databaseConnector.getRoomNumber();
     }
 }

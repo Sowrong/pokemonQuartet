@@ -33,7 +33,7 @@ public class RunningMultiPlayerGameActivity extends AppCompatActivity {
         multiPlayerGame = MultiPlayerGame.getMultiPlayerGame();
         multiPlayerGame.initRunningGame(this);
 
-        multiPlayerGame.initPokemonByRoomId();
+        multiPlayerGame.initPokemonByRandomSeedId();
         displayPokemonByTurn();
         updateViewNumberTurns();
         updateRoomNumber();

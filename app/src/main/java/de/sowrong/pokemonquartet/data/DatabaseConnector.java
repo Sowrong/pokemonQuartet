@@ -17,7 +17,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.Serializable;
 import java.util.Random;
 
-import de.sowrong.pokemonquartet.game.ConnectionType;
 import de.sowrong.pokemonquartet.game.MultiPlayerGame;
 
 public class DatabaseConnector implements Serializable {
@@ -28,7 +27,7 @@ public class DatabaseConnector implements Serializable {
 
     private static GameState gameState;
 
-    private int randomSeed;
+    private int roomNumber;
     private static DatabaseReference databaseReference;
     private static ValueEventListener eventListener;
     private static MultiPlayerGame multiPlayerGame;
@@ -62,18 +61,6 @@ public class DatabaseConnector implements Serializable {
                                 gameState.setGuestConnected((Boolean) value);
                                 if ((Boolean) value) {
                                     multiPlayerGame.playerHasJoinedGame();
-                                }
-                                break;
-                            case GameState.StartPlayerString:
-                                String startPlayerString = (String) value;
-                                if (startPlayerString.equals(ConnectionType.HOST.toString())) {
-                                    gameState.setStartPlayer(ConnectionType.HOST);
-                                }
-                                else if (startPlayerString.equals(ConnectionType.GUEST.toString())) {
-                                    gameState.setStartPlayer(ConnectionType.GUEST);
-                                }
-                                else {
-                                    gameState.setStartPlayer(ConnectionType.OBSERVER);
                                 }
                                 break;
                             case GameState.ChosenStatString:
@@ -111,13 +98,13 @@ public class DatabaseConnector implements Serializable {
     }
 
     public void setDatabaseByRoomId(final int id) {
-        randomSeed = id;
+        roomNumber = id;
 
-        databaseReference = FirebaseDatabase.getInstance().getReference().child(String.valueOf(randomSeed));
+        databaseReference = FirebaseDatabase.getInstance().getReference().child(String.valueOf(roomNumber));
         databaseReference.addValueEventListener(eventListener);
     }
 
-    public void pathExists(final MultiPlayerGame multiPlayerGame, final int roomId, final Context context, final Intent intent, final Toast toastNotExist, final Toast toastFull) {
+    public void checkRoomExists(final MultiPlayerGame multiPlayerGame, final int roomId, final Context context, final Intent intent, final Toast toastNotExist, final Toast toastFull) {
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference().child(String.valueOf(roomId));
 
         rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -148,18 +135,6 @@ public class DatabaseConnector implements Serializable {
                             case GameState.GuestConnectedString:
                                 gameState.setGuestConnected((Boolean) value);
                                 break;
-                            case GameState.StartPlayerString:
-                                String startPlayer = (String) value;
-                                if (startPlayer.equals(ConnectionType.HOST.toString())) {
-                                    gameState.setStartPlayer(ConnectionType.HOST);
-                                }
-                                else if (startPlayer.equals(ConnectionType.GUEST.toString())) {
-                                    gameState.setStartPlayer(ConnectionType.GUEST);
-                                }
-                                else {
-                                    gameState.setStartPlayer(ConnectionType.OBSERVER);
-                                }
-                                break;
                             case GameState.ChosenStatString:
                                 String statString = (String) value;
                                 gameState.setChosenStat(Pokemon.getStatByString(statString));
@@ -174,7 +149,6 @@ public class DatabaseConnector implements Serializable {
                         toastFull.show();
                         return;
                     }
-
 
                     multiPlayerGame.joinGame(roomId, numberCards);
                     context.startActivity(intent);
@@ -194,23 +168,24 @@ public class DatabaseConnector implements Serializable {
             return;
         }
 
-        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference().child(String.valueOf(randomSeed));
-        randomSeed = generator.nextInt(MAX_ROOM_ID-MIN_ROOM_ID)+MIN_ROOM_ID;
+        roomNumber = generator.nextInt(MAX_ROOM_ID-MIN_ROOM_ID)+MIN_ROOM_ID;
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference().child(String.valueOf(roomNumber));
 
         rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() == null) {
                     GameState gameState = DatabaseConnector.getGameState();
+                    int randomSeed = generator.nextInt();
                     gameState.setRandomSeed(randomSeed);
 
-                    databaseReference = FirebaseDatabase.getInstance().getReference().child(String.valueOf(randomSeed));
+                    databaseReference = FirebaseDatabase.getInstance().getReference().child(String.valueOf(roomNumber));
                     setValue(GameState.TurnNumberString, 1);
                     setValue(GameState.GameRandomSeedString, randomSeed);
                     setValue(GameState.NewStatChosenString, false);
                     setValue(GameState.GuestConnectedString, false);
                     setValue(GameState.NumberCardsString, numberCards);
-                    setValue(GameState.StartPlayerString, gameState.getStartPlayer().toString());
+                    setValue(GameState.ChosenStatString, "");
 
                     databaseReference.addValueEventListener(eventListener);
 
@@ -239,8 +214,8 @@ public class DatabaseConnector implements Serializable {
         databaseReference.setValue(null);
     }
 
-    public int getRandomSeed() {
-        return randomSeed;
+    public int getRoomNumber() {
+        return roomNumber;
     }
 
     public static MultiPlayerGame getMultiPlayerGame() {

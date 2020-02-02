@@ -71,14 +71,13 @@ public class NewMultiPlayerGameActivity extends AppCompatActivity {
 
     public void newGame(View view) {
         // see if host was selected, otherwise self is guest
-
         multiPlayerGame = MultiPlayerGame.getMultiPlayerGame();
-        multiPlayerGame.initGame(this);
-
 
         if (multiPlayerGame.isWaitingForCallback()) {
             return;
         }
+
+        multiPlayerGame.initGame(this);
 
         Intent intent = new Intent(this, RunningMultiPlayerGameActivity.class);
 
