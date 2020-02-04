@@ -184,11 +184,10 @@ public class SinglePlayerGame implements Serializable {
 
     public void increaseRoundCounter() {
         if (currentRound >= numberRounds) {
-            return;
-        }
-
-        if (++currentRound == numberRounds) {
             hasEndEnded = true;
+        }
+        else {
+            currentRound++;
         }
     }
 
@@ -209,7 +208,6 @@ public class SinglePlayerGame implements Serializable {
                 aiPlayer.roundWon();
                 selfPlayerIsActivePlayer = false;
                 ai.nextMove();
-                //todo ai stuff
                 break;
             default:
                 selfPlayer.roundTied();

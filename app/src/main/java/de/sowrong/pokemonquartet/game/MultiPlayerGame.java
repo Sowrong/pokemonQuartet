@@ -173,12 +173,12 @@ public class MultiPlayerGame implements Serializable {
         ArrayList<Pokemon> shuffledPokemonSet2 = new ArrayList<>(shuffledList.subList(numberRounds, numberRounds*2));
 
         if (isHost()) {
-            self.setPokemon(shuffledPokemonSet1);
-            opponent.setPokemon(shuffledPokemonSet2);
+            self.reset(shuffledPokemonSet1);
+            opponent.reset(shuffledPokemonSet2);
         }
         else {
-            opponent.setPokemon(shuffledPokemonSet1);
-            self.setPokemon(shuffledPokemonSet2);
+            opponent.reset(shuffledPokemonSet1);
+            self.reset(shuffledPokemonSet2);
         }
     }
 
